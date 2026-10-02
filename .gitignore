@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Runtime content
+/uploads/*
+!/uploads/.gitkeep
+/generated/*
+!/generated/.gitkeep
+
+# Test and build artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local editor settings
+.idea/
