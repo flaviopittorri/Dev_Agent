@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fontes de aula | Course Builder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('documents.dashboard') }}">Course Builder <span>/ Fontes</span></a>
+    <span class="storage-label">ARMAZENAMENTO LOCAL</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">BIBLIOTECA DO PROFESSOR</p>
+        <h1 id="page-title">Fontes de conhecimento</h1>
+        <p class="subtitle">Importe PDFs para preparar o material das aulas.</p>
+      </div>
+      <form class="upload" action="{{ url_for('documents.upload_document') }}" method="post" enctype="multipart/form-data">
+        <label class="file-picker">
+          <span>Selecionar PDF</span>
+          <input type="file" name="file" accept="application/pdf,.pdf" required>
+        </label>
+        <button type="submit">Importar fonte <span aria-hidden="true">&#8594;</span></button>
+        <small>PDF, até 20 MiB</small>
+      </form>
+    </section>
+
+    {% if error %}
+    <p class="alert" role="alert">{{ error }}</p>
+    {% endif %}
+
+    <section class="metrics" aria-label="Estatísticas da biblioteca">
+      <div class="metric"><span>Documentos</span><strong>{{ documents|length }}</strong></div>
+      <div class="metric"><span>Páginas extraídas</span><strong>{{ total_pages }}</strong></div>
+      <div class="metric"><span>Palavras indexáveis</span><strong>{{ total_words }}</strong></div>
+      <div class="metric"><span>Armazenamento</span><strong class="metric-detail">SQLite</strong></div>
+    </section>
+
+    <section class="library" id="documents" aria-labelledby="library-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">CONTEÚDO IMPORTADO</p><h2 id="library-title">Documentos recentes</h2></div>
+        <span class="count">{{ documents|length }} registros</span>
+      </div>
+
+      {% if documents %}
+      <div class="document-list">
+        {% for document in documents %}
+        <article class="document-row">
+          <div class="document-main">
+            <div class="document-title"><span class="pdf-mark">PDF</span><h3>{{ document.filename }}</h3></div>
+            <p class="subject">{{ document.subject }}</p>
+            <p class="summary">{{ document.summary }}</p>
+            <p class="checksum">SHA-256 <code>{{ document.sha256 }}</code></p>
+          </div>
+          <dl class="document-stats">
+            <div><dt>Páginas</dt><dd>{{ document.page_count }}</dd></div>
+            <div><dt>Palavras</dt><dd>{{ document.word_count }}</dd></div>
+            <div><dt>Caracteres</dt><dd>{{ document.character_count }}</dd></div>
+            <div><dt>Tamanho</dt><dd>{{ "%.1f"|format(document.file_size_bytes / 1024) }} KB</dd></div>
+            <div><dt>Importado em</dt><dd>{{ document.uploaded_at }}</dd></div>
+          </dl>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><span class="empty-index">01</span><div><h3>Sua biblioteca começa aqui.</h3><p>Os arquivos importados e seus dados extraídos aparecerão nesta lista.</p></div></div>
+      {% endif %}
+    </section>
+
+    <footer class="footnote">Banco local: <code>{{ database_path }}</code> <span>·</span> Os resumos exibidos são extraídos do texto, sem geração por IA.</footer>
+  </main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # AI Course Content Builder
 
-> **Status:** estrutura inicial. Este repositório ainda não contém aplicação executável.
+> **Status:** MVP de ingestão de PDFs implementado; decisões de arquitetura aguardam aprovação humana.
 
 Projeto de uma aplicação Web para apoiar professores na criação de materiais didáticos a partir de documentos de referência e instruções fornecidas pelo professor. A especificação funcional completa está em [Prompt_Mestre_AI_Course_Content_Builder.md](Prompt_Mestre_AI_Course_Content_Builder.md).
 
@@ -50,25 +50,38 @@ uploads/                      # Arquivos de entrada em tempo de execução
 generated/                    # Materiais gerados em tempo de execução
 ```
 
-Os diretórios estão vazios intencionalmente. Os arquivos `.gitkeep` apenas permitem que essa estrutura seja versionada.
+O primeiro incremento implementa somente a importação de PDF e a consulta dos registros. Os demais formatos, a geração de aulas, embeddings e integração com LLM permanecem fora deste recorte.
 
 ## Arquitetura prevista
 
-O prompt define um monólito modular Python com separação MVC e serviços, frontend HTML, processamento assíncrono e abstrações substituíveis para loaders de documentos, provedores de LLM e armazenamento vetorial. Nenhum framework, banco de dados, provedor de IA ou dependência foi selecionado nesta etapa.
+O incremento utiliza Flask e SQLite como escolhas provisórias e substituíveis. Os arquivos PDF e textos extraídos são gravados em `generated/documents.db`, diretório local ignorado pelo Git.
+
+## Executar
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+python run.py
+```
+
+Acesse `http://127.0.0.1:5000/`. A API oferece `POST /api/documents` (multipart com o campo `file`), `GET /api/documents` e `GET /api/documents/<id>`. O limite de PDF é 20 MiB. Defina `DATABASE_PATH` para mudar o banco e `FLASK_SECRET_KEY` antes de qualquer implantação.
+
+Execute os testes com `python -m pytest`.
 
 ## Decisões pendentes
 
 Antes da implementação, devem ser apresentados para aprovação humana, entre outros pontos:
 
-- framework Web Python e estratégia de templates;
-- banco relacional e estratégia de migrações;
+- confirmação do framework Web Python e estratégia de templates;
+- confirmação do banco relacional e estratégia de migrações;
 - fila/worker para jobs assíncronos;
 - provedor de embeddings e armazenamento vetorial;
 - provedor de LLM e configuração de credenciais;
-- armazenamento dos documentos e política de retenção;
+- aprovação da persistência do arquivo original no SQLite e política de retenção;
 - autenticação, implantação e requisitos operacionais.
 
-Essas decisões não foram tomadas ao criar o esqueleto. O próximo passo do projeto deve seguir as fases de análise, proposta técnica, diagramas, plano de implementação e aprovação descritas no prompt mestre.
+O relatório de revisão em `docs/relatorios/revisao_ingestao_pdf.md` registra as decisões provisórias, riscos e pontos que requerem orientação humana. A aprovação dessas escolhas continua pendente.
 
 ## Segurança e dados locais
 
@@ -78,5 +91,6 @@ Uploads e materiais gerados são dados de execução e não devem ser versionado
 
 - Estrutura de diretórios criada conforme a arquitetura proposta.
 - Repositório Git inicializado, sem commit inicial.
-- Sem implementação, dependências, comandos de execução ou testes nesta etapa.
-- Framework e demais escolhas estruturais aguardam aprovação.
+- Upload, validação, extração heurística, armazenamento SQLite e dashboard para PDFs;
+- API de consulta e testes unitários/de integração;
+- framework e persistência ainda dependem de aprovação antes de evoluir o MVP.
